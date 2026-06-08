@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- ═══ SEO: แก้ไข title ให้มี keyword + จังหวัด ═══ -->
+  <title>Gentlebooth | เช่า Photo Booth สำหรับงาน Event งานแต่ง [จังหวัด]</title>
+
+  <!-- ═══ SEO: อธิบายร้าน 150–160 ตัวอักษร ═══ -->
+  <meta name="description" content="Gentlebooth บริการเช่า Photo Booth สำหรับงานแต่งงาน งานเลี้ยง อีเว้นท์ทุกประเภท [เพิ่มเติม: จุดเด่นของร้าน] รับงานทั่ว[จังหวัด] ติดต่อ [เบอร์โทร]" />
+  <meta name="keywords" content="เช่า photo booth, photo booth งานแต่ง, photo booth [จังหวัด], gentlebooth, บูธถ่ายรูป" />
+  <meta name="robots" content="index, follow" />
+
+  <!-- ═══ แก้ไข: ใส่ domain จริงที่ได้จาก Cloudflare ═══ -->
+  <link rel="canonical" href="https://[YOUR_DOMAIN]/" />
+
+  <!-- Open Graph (Facebook / LINE Preview) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Gentlebooth" />
+  <meta property="og:title" content="Gentlebooth — เช่า Photo Booth สำหรับทุก Event" />
+  <meta property="og:description" content="[อธิบายร้านสั้นๆ สำหรับแชร์บน social]" />
+  <meta property="og:url" content="https://[YOUR_DOMAIN]/" />
+  <meta property="og:image" content="https://[YOUR_DOMAIN]/og-image.jpg" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Gentlebooth" />
+  <meta name="twitter:description" content="[อธิบายร้านสั้นๆ]" />
+  <meta name="twitter:image" content="https://[YOUR_DOMAIN]/og-image.jpg" />
+
+  <!-- ═══ Schema.org: ช่วย Google เข้าใจธุรกิจ ═══ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": "Gentlebooth",
+    "description": "[อธิบายธุรกิจ]",
+    "url": "https://[YOUR_DOMAIN]",
+    "telephone": "[เบอร์โทร]",
+    "email": "[อีเมล]",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "[ที่อยู่]",
+      "addressLocality": "[เขต/อำเภอ]",
+      "addressRegion": "[จังหวัด]",
+      "postalCode": "[รหัสไปรษณีย์]",
+      "addressCountry": "TH"
+    },
+    "openingHoursSpecification": {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
+      "opens": "[เวลาเปิด]",
+      "closes": "[เวลาปิด]"
+    },
+    "image": "https://[YOUR_DOMAIN]/og-image.jpg",
+    "priceRange": "฿฿",
+    "sameAs": [
+      "https://www.facebook.com/[FACEBOOK_PAGE]",
+      "https://www.instagram.com/[INSTAGRAM_HANDLE]",
+      "https://line.me/ti/p/[LINE_ID]"
+    ]
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0b0b0b;
+      --surface: #141414;
+      --surface2: #1e1e1e;
+      --gold: #d63031;
+      --gold-light: #ff7675;
+      --gold-dim: rgba(214,48,49,0.12);
+      --text: #f2f2f2;
+      --text-dim: #999;
+      --text-dimmer: #555;
+      --white: #ffffff;
+      --radius: 16px;
+      --radius-sm: 10px;
+      --max: 1100px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Noto Sans Thai', sans-serif;
+      font-weight: 400;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+
+    .container {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      background: rgba(11,11,11,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .nav-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--gold);
+      letter-spacing: 0.06em;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 14px;
+      color: var(--text-dim);
+      letter-spacing: 0.04em;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--gold); }
+
+    .nav-cta {
+      background: var(--gold);
+      color: #0b0b0b !important;
+      font-weight: 600;
+      padding: 8px 20px;
+      border-radius: 50px;
+      font-size: 13px !important;
+      letter-spacing: 0.04em;
+      transition: background 0.2s !important;
+    }
+    .nav-cta:hover { background: var(--gold-light) !important; color: #0b0b0b !important; }
+
+    .nav-mobile-btn {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      flex-direction: column;
+      gap: 5px;
+      padding: 4px;
+    }
+    .nav-mobile-btn span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: var(--text);
+      border-radius: 2px;
+      transition: 0.3s;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100svh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 100px 24px 60px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      /* ═══ แก้ไข: ใส่รูปพื้นหลัง hero ═══ */
+      background: linear-gradient(160deg, #141414 0%, #0b0b0b 60%);
+      z-index: 0;
+    }
+
+    .hero-bg::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 60% 50% at 50% 40%, rgba(214,48,49,0.08) 0%, transparent 70%);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      max-width: 720px;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      background: var(--gold-dim);
+      border: 1px solid rgba(214,48,49,0.3);
+      color: var(--gold);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      padding: 6px 18px;
+      border-radius: 50px;
+      margin-bottom: 28px;
+    }
+
+    /* ═══ แก้ไข: headline หลัก — ใส่ keyword ที่ลูกค้าค้นหา ═══ */
+    .hero h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(42px, 7vw, 80px);
+      font-weight: 600;
+      line-height: 1.1;
+      letter-spacing: -0.01em;
+      margin-bottom: 20px;
+      color: var(--white);
+    }
+
+    .hero h1 em {
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    .hero-sub {
+      font-size: 16px;
+      color: var(--text-dim);
+      max-width: 500px;
+      margin: 0 auto 40px;
+      font-weight: 300;
+      line-height: 1.8;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      background: var(--gold);
+      color: #0b0b0b;
+      font-weight: 600;
+      font-size: 15px;
+      padding: 14px 32px;
+      border-radius: 50px;
+      border: none;
+      cursor: pointer;
+      font-family: 'Noto Sans Thai', sans-serif;
+      letter-spacing: 0.02em;
+      transition: background 0.2s, transform 0.15s;
+      display: inline-block;
+    }
+    .btn-primary:hover { background: var(--gold-light); transform: translateY(-1px); }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text);
+      font-weight: 400;
+      font-size: 15px;
+      padding: 14px 32px;
+      border-radius: 50px;
+      border: 1px solid rgba(255,255,255,0.2);
+      cursor: pointer;
+      font-family: 'Noto Sans Thai', sans-serif;
+      transition: border-color 0.2s, transform 0.15s;
+      display: inline-block;
+    }
+    .btn-outline:hover { border-color: var(--gold); color: var(--gold); transform: translateY(-1px); }
+
+    /* ── SECTION SHARED ── */
+    section { padding: 100px 0; }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(32px, 4vw, 52px);
+      font-weight: 600;
+      line-height: 1.2;
+      color: var(--white);
+      margin-bottom: 16px;
+    }
+
+    .section-desc {
+      font-size: 15px;
+      color: var(--text-dim);
+      max-width: 500px;
+      font-weight: 300;
+      line-height: 1.9;
+    }
+
+    .section-head { margin-bottom: 56px; }
+    .section-head.center { text-align: center; }
+    .section-head.center .section-desc { margin: 0 auto; }
+
+    /* ── SERVICES ── */
+    #services { background: var(--surface); }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+    }
+
+    .service-card {
+      background: var(--bg);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: var(--radius);
+      padding: 36px 28px;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .service-card:hover { border-color: rgba(214,48,49,0.4); transform: translateY(-4px); }
+
+    .service-icon {
+      font-size: 36px;
+      margin-bottom: 20px;
+    }
+
+    .service-card h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--white);
+      margin-bottom: 10px;
+    }
+
+    .service-card p {
+      font-size: 14px;
+      color: var(--text-dim);
+      line-height: 1.8;
+      font-weight: 300;
+    }
+
+    /* ── GALLERY ── */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(2, 220px);
+      gap: 12px;
+    }
+
+    .gallery-item {
+      background: var(--surface2);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .gallery-item:first-child {
+      grid-row: span 2;
+    }
+
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s;
+    }
+    .gallery-item:hover img { transform: scale(1.05); }
+
+    .gallery-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-dimmer);
+      font-size: 13px;
+      gap: 8px;
+      border: 1px dashed rgba(255,255,255,0.1);
+      border-radius: var(--radius-sm);
+    }
+
+    .gallery-placeholder span { font-size: 28px; }
+
+    /* ── PACKAGES ── */
+    #packages { background: var(--surface); }
+
+    .packages-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+
+    .package-card {
+      background: var(--bg);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--radius);
+      padding: 36px 32px;
+      position: relative;
+      transition: border-color 0.2s;
+    }
+
+    .package-card.featured {
+      border-color: var(--gold);
+      background: linear-gradient(160deg, #1a0505 0%, var(--bg) 60%);
+    }
+
+    .featured-badge {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--gold);
+      color: #0b0b0b;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 4px 16px;
+      border-radius: 50px;
+      white-space: nowrap;
+    }
+
+    .package-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--white);
+      margin-bottom: 8px;
+    }
+
+    .package-price {
+      font-size: 42px;
+      font-weight: 700;
+      color: var(--gold);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .package-price span {
+      font-size: 16px;
+      font-weight: 400;
+      color: var(--text-dim);
+    }
+
+    .package-duration {
+      font-size: 13px;
+      color: var(--text-dim);
+      margin-bottom: 28px;
+    }
+
+    .package-features {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 32px;
+    }
+
+    .package-features li {
+      font-size: 14px;
+      color: var(--text-dim);
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-weight: 300;
+    }
+
+    .package-features li::before {
+      content: '✓';
+      color: var(--gold);
+      font-weight: 600;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* ── HOW IT WORKS ── */
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 32px;
+    }
+
+    .step {
+      text-align: center;
+    }
+
+    .step-num {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--gold-dim);
+      border: 1px solid rgba(214,48,49,0.3);
+      color: var(--gold);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+    }
+
+    .step h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--white);
+      margin-bottom: 8px;
+    }
+
+    .step p {
+      font-size: 14px;
+      color: var(--text-dim);
+      font-weight: 300;
+      line-height: 1.8;
+    }
+
+    /* ── WHY US ── */
+    #why { background: var(--surface); }
+
+    .why-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+
+    .why-list {
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .why-item {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+    }
+
+    .why-icon {
+      width: 44px;
+      height: 44px;
+      flex-shrink: 0;
+      background: var(--gold-dim);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .why-item h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--white);
+      margin-bottom: 4px;
+    }
+
+    .why-item p {
+      font-size: 14px;
+      color: var(--text-dim);
+      font-weight: 300;
+      line-height: 1.8;
+    }
+
+    .why-img {
+      background: var(--surface2);
+      border-radius: var(--radius);
+      aspect-ratio: 4/5;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .why-img-placeholder {
+      text-align: center;
+      color: var(--text-dimmer);
+      font-size: 13px;
+    }
+
+    .why-img-placeholder span { font-size: 40px; display: block; margin-bottom: 12px; }
+
+    /* ── CONTACT ── */
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: start;
+    }
+
+    .contact-info {
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .contact-item {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .contact-item-icon {
+      width: 42px;
+      height: 42px;
+      flex-shrink: 0;
+      background: var(--gold-dim);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .contact-item h4 {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-dim);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .contact-item p, .contact-item a {
+      font-size: 15px;
+      color: var(--text);
+      font-weight: 400;
+      transition: color 0.2s;
+    }
+
+    .contact-item a:hover { color: var(--gold); }
+
+    .contact-form {
+      background: var(--surface);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: var(--radius);
+      padding: 36px 32px;
+    }
+
+    .contact-form h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 26px;
+      font-weight: 600;
+      color: var(--white);
+      margin-bottom: 24px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      color: var(--text-dim);
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      color: var(--text);
+      font-family: 'Noto Sans Thai', sans-serif;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      border-color: var(--gold);
+    }
+
+    .form-group textarea { resize: vertical; min-height: 100px; }
+
+    .form-group select option { background: var(--surface2); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--surface);
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding: 48px 0 32px;
+    }
+
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .footer-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--gold);
+      letter-spacing: 0.06em;
+    }
+
+    .footer-copy {
+      font-size: 13px;
+      color: var(--text-dimmer);
+    }
+
+    .footer-social {
+      display: flex;
+      gap: 16px;
+    }
+
+    .footer-social a {
+      font-size: 13px;
+      color: var(--text-dim);
+      transition: color 0.2s;
+    }
+    .footer-social a:hover { color: var(--gold); }
+
+    /* ── DIVIDER ── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(214,48,49,0.3), transparent);
+      margin: 0 auto;
+      max-width: 200px;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .nav-mobile-btn { display: flex; }
+
+      section { padding: 72px 0; }
+
+      .why-grid,
+      .contact-grid { grid-template-columns: 1fr; }
+
+      .why-img { aspect-ratio: 4/3; }
+
+      .gallery-grid {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: auto;
+      }
+      .gallery-item:first-child { grid-row: span 1; }
+
+      .form-row { grid-template-columns: 1fr; }
+
+      .footer-inner { flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════ NAV ══════════════════════════════════════ -->
+  <nav aria-label="Main navigation">
+    <div class="nav-inner">
+      <a href="#" class="logo">Gentlebooth</a>
+      <ul class="nav-links">
+        <li><a href="#services">บริการ</a></li>
+        <li><a href="#gallery">ผลงาน</a></li>
+        <li><a href="#packages">แพ็กเกจ</a></li>
+        <li><a href="#contact" class="nav-cta">จองเลย</a></li>
+      </ul>
+      <button class="nav-mobile-btn" aria-label="เปิดเมนู" onclick="toggleMenu()">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ══════════════════════════════════════ HERO ══════════════════════════════════════ -->
+  <header class="hero" id="home">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <div class="hero-badge">✦ Photo Booth Service</div>
+
+      <!-- ═══ แก้ไข: headline หลัก — ใส่ keyword ที่ต้องการติดอันดับ ═══ -->
+      <h1>ทำให้ทุก<em>ช่วงเวลา</em><br/>น่าจดจำ</h1>
+
+      <!-- ═══ แก้ไข: subheadline ═══ -->
+      <p class="hero-sub">
+        Gentlebooth บริการเช่า Photo Booth สำหรับงานแต่งงาน<br/>
+        งานเลี้ยง และทุก Event ที่คุณต้องการความประทับใจ
+      </p>
+
+      <div class="hero-actions">
+        <a href="#contact" class="btn-primary">จองวันของคุณ</a>
+        <a href="#packages" class="btn-outline">ดูแพ็กเกจ</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ══════════════════════════════════════ SERVICES ══════════════════════════════════════ -->
+  <section id="services">
+    <div class="container">
+      <div class="section-head center">
+        <p class="section-label">บริการของเรา</p>
+        <h2 class="section-title">Photo Booth ทุกรูปแบบ</h2>
+        <p class="section-desc">
+          <!-- ═══ แก้ไข: อธิบายบริการโดยรวม ═══ -->
+          [อธิบายจุดเด่นของบริการ เช่น: ครบครันทุกอุปกรณ์ มีทีมงานมืออาชีพ พร้อมส่งรูปทันที]
+        </p>
+      </div>
+
+      <div class="services-grid">
+        <!-- ═══ แก้ไข: เพิ่ม/แก้ไขประเภทบูธตามที่ให้บริการจริง ═══ -->
+        <article class="service-card">
+          <div class="service-icon">📸</div>
+          <h3>Open Booth</h3>
+          <p>[อธิบายบริการ Open Booth เช่น พื้นที่เปิด ไม่มีฉาก เหมาะกับงานสังสรรค์ที่ต้องการความสนุก]</p>
+        </article>
+
+        <article class="service-card">
+          <div class="service-icon">🎪</div>
+          <h3>Enclosed Booth</h3>
+          <p>[อธิบายบริการ Enclosed Booth เช่น บูธแบบมีฉากกั้น ให้ความเป็นส่วนตัว เหมาะกับงานแต่ง]</p>
+        </article>
+
+        <article class="service-card">
+          <div class="service-icon">🌀</div>
+          <h3>360° Booth</h3>
+          <p>[อธิบายบริการ 360 Booth เช่น แพลตฟอร์มหมุนรอบตัว บันทึกวิดีโอ slow motion สุดอลังการ]</p>
+        </article>
+
+        <article class="service-card">
+          <div class="service-icon">🎨</div>
+          <h3>[บริการเพิ่มเติม]</h3>
+          <p>[อธิบายบริการเพิ่มเติม หรือลบการ์ดนี้หากไม่มี]</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════ GALLERY ══════════════════════════════════════ -->
+  <section id="gallery">
+    <div class="container">
+      <div class="section-head">
+        <p class="section-label">ผลงาน</p>
+        <h2 class="section-title">ความประทับใจ<br/>จากงานจริง</h2>
+        <p class="section-desc">
+          <!-- ═══ แก้ไข: อธิบาย gallery ═══ -->
+          [อธิบายผลงาน เช่น: รวมภาพจากงานที่ผ่านมา ทั้งงานแต่งงาน งานเลี้ยงบริษัท และอีเว้นท์พิเศษ]
+        </p>
+      </div>
+
+      <!-- ═══ แก้ไข: แทนที่ gallery-placeholder ด้วย <img> จริง ═══ -->
+      <div class="gallery-grid">
+        <div class="gallery-item">
+          <div class="gallery-placeholder">
+            <span>🖼️</span>
+            รูปหลัก<br/>(แนะนำ: แนวตั้ง)
+          </div>
+        </div>
+        <div class="gallery-item">
+          <div class="gallery-placeholder"><span>🖼️</span>รูปที่ 2</div>
+        </div>
+        <div class="gallery-item">
+          <div class="gallery-placeholder"><span>🖼️</span>รูปที่ 3</div>
+        </div>
+        <div class="gallery-item">
+          <div class="gallery-placeholder"><span>🖼️</span>รูปที่ 4</div>
+        </div>
+        <div class="gallery-item">
+          <div class="gallery-placeholder"><span>🖼️</span>รูปที่ 5</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════ PACKAGES ══════════════════════════════════════ -->
+  <section id="packages">
+    <div class="container">
+      <div class="section-head center">
+        <p class="section-label">แพ็กเกจ & ราคา</p>
+        <h2 class="section-title">เลือกแพ็กเกจ<br/>ที่เหมาะกับคุณ</h2>
+        <p class="section-desc">
+          <!-- ═══ แก้ไข: หมายเหตุราคา ═══ -->
+          [เพิ่มหมายเหตุ เช่น: ราคาเริ่มต้น สอบถามราคาพิเศษสำหรับงานนอกสถานที่]
+        </p>
+      </div>
+
+      <div class="packages-grid">
+        <!-- แพ็กเกจ 1 -->
+        <div class="package-card">
+          <!-- ═══ แก้ไข: ชื่อ ราคา และรายละเอียดแพ็กเกจ ═══ -->
+          <p class="package-name">[ชื่อแพ็กเกจ]</p>
+          <p class="package-price">[ราคา]<span> บาท</span></p>
+          <p class="package-duration">[ระยะเวลา เช่น: 3 ชั่วโมง]</p>
+          <ul class="package-features">
+            <li>[รายการที่รวม]</li>
+            <li>[รายการที่รวม]</li>
+            <li>[รายการที่รวม]</li>
+          </ul>
+          <a href="#contact" class="btn-outline" style="width:100%;text-align:center;display:block;">จองแพ็กเกจนี้</a>
+        </div>
+
+        <!-- แพ็กเกจ 2 (แนะนำ) -->
+        <div class="package-card featured">
+          <div class="featured-badge">แนะนำ</div>
+          <p class="package-name">[ชื่อแพ็กเกจ]</p>
+          <p class="package-price">[ราคา]<span> บาท</span></p>
+          <p class="package-duration">[ระยะเวลา เช่น: 5 ชั่วโมง]</p>
+          <ul class="package-features">
+            <li>[รายการที่รวม]</li>
+            <li>[รายการที่รวม]</li>
+            <li>[รายการที่รวม]</li>
+            <li>[รายการที่รวม]</li>
+          </ul>
+          <a href="#contact" class="btn-primary" style="width:100%;text-align:center;display:block;">จองแพ็กเกจนี้</a>
+        </div>
+
+        <!-- แพ็กเกจ 3 -->
+        <div class="package-card">
+          <p class="package-name">[ชื่อแพ็กเกจ]</p>
+          <p class="package-price">[ราคา]<span> บาท</span></p>
+          <p class="package-duration">[ระยะเวลา เช่น: Full Day]</p>
+          <ul class="package-features">
+            <li>[รายการที่รวม]</li>
+            <li>[รายการที่รวม]</li>
+            <li>[รายการที่รวม]</li>
+            <li>[รายการที่รวม]</li>
+            <li>[รายการที่รวม]</li>
+          </ul>
+          <a href="#contact" class="btn-outline" style="width:100%;text-align:center;display:block;">จองแพ็กเกจนี้</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════ HOW IT WORKS ══════════════════════════════════════ -->
+  <section id="how">
+    <div class="container">
+      <div class="section-head center">
+        <p class="section-label">ขั้นตอน</p>
+        <h2 class="section-title">จองง่าย ใช้เวลาไม่นาน</h2>
+      </div>
+
+      <div class="steps-grid">
+        <div class="step">
+          <div class="step-num">1</div>
+          <h3>เลือกแพ็กเกจ</h3>
+          <p>เลือกแพ็กเกจที่เหมาะกับงานของคุณ และวันที่ต้องการ</p>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <h3>ติดต่อจอง</h3>
+          <!-- ═══ แก้ไข: ช่องทางจอง ═══ -->
+          <p>[อธิบายวิธีจอง เช่น: ติดต่อผ่าน Line หรือกรอกฟอร์ม รอยืนยันภายใน 24 ชม.]</p>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <h3>ชำระมัดจำ</h3>
+          <!-- ═══ แก้ไข: เงื่อนไขมัดจำ ═══ -->
+          <p>[เงื่อนไขมัดจำ เช่น: มัดจำ 50% เพื่อยืนยันวันจอง ชำระส่วนที่เหลือก่อนงาน]</p>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <h3>สนุกในงานของคุณ!</h3>
+          <p>ทีมงานจะเตรียมบูธให้พร้อมก่อนงาน และดูแลตลอดงาน</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════ WHY US ══════════════════════════════════════ -->
+  <section id="why">
+    <div class="container">
+      <div class="why-grid">
+        <div>
+          <div class="section-head">
+            <p class="section-label">ทำไมต้อง Gentlebooth</p>
+            <!-- ═══ แก้ไข: จุดเด่นของร้าน ═══ -->
+            <h2 class="section-title">ความแตกต่างที่<br/>คุณสัมผัสได้</h2>
+            <p class="section-desc">[อธิบายจุดเด่นโดยรวมของ Gentlebooth]</p>
+          </div>
+
+          <div class="why-list">
+            <div class="why-item">
+              <div class="why-icon">✨</div>
+              <div>
+                <!-- ═══ แก้ไข: จุดเด่นที่ 1 ═══ -->
+                <h3>[จุดเด่นที่ 1]</h3>
+                <p>[อธิบายจุดเด่น]</p>
+              </div>
+            </div>
+            <div class="why-item">
+              <div class="why-icon">🎯</div>
+              <div>
+                <h3>[จุดเด่นที่ 2]</h3>
+                <p>[อธิบายจุดเด่น]</p>
+              </div>
+            </div>
+            <div class="why-item">
+              <div class="why-icon">💫</div>
+              <div>
+                <h3>[จุดเด่นที่ 3]</h3>
+                <p>[อธิบายจุดเด่น]</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ แก้ไข: แทนที่ด้วย <img> จริง ═══ -->
+        <div class="why-img">
+          <div class="why-img-placeholder">
+            <span>📷</span>
+            ใส่รูปหรือวิดีโอ<br/>แสดงผลงาน/บรรยากาศ
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════ CONTACT ══════════════════════════════════════ -->
+  <section id="contact">
+    <div class="container">
+      <div class="section-head center">
+        <p class="section-label">ติดต่อ & จอง</p>
+        <h2 class="section-title">พร้อมทำให้งานของคุณ<br/>น่าจดจำ</h2>
+      </div>
+
+      <div class="contact-grid">
+        <div class="contact-info">
+          <div class="contact-item">
+            <div class="contact-item-icon">📞</div>
+            <div>
+              <h4>โทรศัพท์</h4>
+              <!-- ═══ แก้ไข: เบอร์โทร ═══ -->
+              <a href="tel:[เบอร์โทร]">[เบอร์โทร]</a>
+            </div>
+          </div>
+
+          <div class="contact-item">
+            <div class="contact-item-icon">💬</div>
+            <div>
+              <h4>LINE</h4>
+              <!-- ═══ แก้ไข: LINE ID ═══ -->
+              <a href="https://line.me/ti/p/[LINE_ID]">@[LINE_ID]</a>
+            </div>
+          </div>
+
+          <div class="contact-item">
+            <div class="contact-item-icon">📍</div>
+            <div>
+              <h4>พื้นที่ให้บริการ</h4>
+              <!-- ═══ แก้ไข: พื้นที่รับงาน ═══ -->
+              <p>[จังหวัด/พื้นที่รับงาน เช่น: กรุงเทพฯ และปริมณฑล]</p>
+            </div>
+          </div>
+
+          <div class="contact-item">
+            <div class="contact-item-icon">🕐</div>
+            <div>
+              <h4>เวลาทำการ</h4>
+              <!-- ═══ แก้ไข: เวลาทำการ ═══ -->
+              <p>[เวลาทำการ เช่น: ทุกวัน 09:00 – 21:00 น.]</p>
+            </div>
+          </div>
+
+          <div class="contact-item">
+            <div class="contact-item-icon">📘</div>
+            <div>
+              <h4>Facebook</h4>
+              <!-- ═══ แก้ไข: Facebook Page ═══ -->
+              <a href="https://facebook.com/[FACEBOOK_PAGE]">facebook.com/[FACEBOOK_PAGE]</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="contact-form">
+          <h3>ส่งข้อความจองงาน</h3>
+          <!-- ═══ แก้ไข: action ของ form — ใช้ Cloudflare Turnstile + Workers หรือ Formspree ═══ -->
+          <form action="https://formspree.io/f/[YOUR_FORM_ID]" method="POST">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="name">ชื่อ-นามสกุล *</label>
+                <input type="text" id="name" name="name" required placeholder="คุณ..." />
+              </div>
+              <div class="form-group">
+                <label for="phone">เบอร์โทรศัพท์ *</label>
+                <input type="tel" id="phone" name="phone" required placeholder="0X-XXXX-XXXX" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="email">อีเมล</label>
+              <input type="email" id="email" name="email" placeholder="example@email.com" />
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="date">วันที่งาน *</label>
+                <input type="date" id="date" name="date" required />
+              </div>
+              <div class="form-group">
+                <label for="package">แพ็กเกจที่สนใจ</label>
+                <select id="package" name="package">
+                  <option value="">-- เลือกแพ็กเกจ --</option>
+                  <!-- ═══ แก้ไข: ใส่ชื่อแพ็กเกจจริง ═══ -->
+                  <option>[ชื่อแพ็กเกจ 1]</option>
+                  <option>[ชื่อแพ็กเกจ 2]</option>
+                  <option>[ชื่อแพ็กเกจ 3]</option>
+                  <option>ยังไม่แน่ใจ</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="message">รายละเอียดเพิ่มเติม</label>
+              <textarea id="message" name="message" placeholder="สถานที่จัดงาน, จำนวนแขก, ความต้องการพิเศษ..."></textarea>
+            </div>
+
+            <button type="submit" class="btn-primary" style="width:100%;border:none;">ส่งข้อความ →</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════ FOOTER ══════════════════════════════════════ -->
+  <footer>
+    <div class="container">
+      <div class="footer-inner">
+        <span class="footer-logo">Gentlebooth</span>
+
+        <div class="footer-social">
+          <!-- ═══ แก้ไข: ลิงก์ social media ═══ -->
+          <a href="https://facebook.com/[FACEBOOK_PAGE]">Facebook</a>
+          <a href="https://instagram.com/[INSTAGRAM_HANDLE]">Instagram</a>
+          <a href="https://line.me/ti/p/[LINE_ID]">LINE</a>
+        </div>
+
+        <!-- ═══ แก้ไข: ปีและชื่อเต็ม ═══ -->
+        <p class="footer-copy">© 2025 Gentlebooth. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    function toggleMenu() {
+      const links = document.querySelector('.nav-links');
+      if (!links) return;
+      const open = links.style.display === 'flex';
+      links.style.cssText = open ? '' : 'display:flex;flex-direction:column;position:absolute;top:64px;left:0;right:0;background:rgba(11,11,11,0.97);padding:20px 24px;gap:20px;border-bottom:1px solid rgba(255,255,255,0.06);z-index:99;';
+    }
+
+    // Close mobile menu when a link is clicked
+    document.querySelectorAll('.nav-links a').forEach(a => {
+      a.addEventListener('click', () => {
+        const links = document.querySelector('.nav-links');
+        if (links) links.style.cssText = '';
+      });
+    });
+
+    // Smooth active state on nav
+    const sections = document.querySelectorAll('section[id], header[id]');
+    const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          navLinks.forEach(a => {
+            a.style.color = a.getAttribute('href') === '#' + entry.target.id ? 'var(--gold)' : '';
+          });
+        }
+      });
+    }, { threshold: 0.4 });
+
+    sections.forEach(s => observer.observe(s));
+  </script>
+</body>
+</html>
