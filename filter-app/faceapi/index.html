@@ -125,6 +125,11 @@
   let isFlipped = true;
   let W = 640, H = 480;
   let running = false;
+  let lastDetections = [];
+  let detectRunning = false;
+  let lastDetectError = '';
+  const offscreen = document.createElement('canvas');
+  let offCtx;
 
   STICKERS.forEach(f => {
     const chip = document.createElement('div');
@@ -156,35 +161,62 @@
     canvas.width = W; canvas.height = H;
 
     progFill.style.width = '100%'; loadSt.textContent = 'พร้อมแล้ว!';
-    setTimeout(() => { loadScr.classList.add('hide'); snapBtn.disabled = false; running = true; loop(); }, 400);
+    offscreen.width = W; offscreen.height = H;
+    offCtx = offscreen.getContext('2d');
+    setTimeout(() => {
+      loadScr.classList.add('hide'); snapBtn.disabled = false;
+      running = true;
+      setInterval(detectFaces, 80);
+      renderLoop();
+    }, 400);
   }
 
-  async function loop() {
+  async function detectFaces() {
+    if (detectRunning || activeSticker === 'none' || video.readyState < 2) return;
+    detectRunning = true;
+    try {
+      offCtx.drawImage(video, 0, 0, W, H);
+      lastDetections = await faceapi
+        .detectAllFaces(offscreen, new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.3, inputSize: 224 }))
+        .withFaceLandmarks();
+      lastDetectError = '';
+    } catch(e) {
+      lastDetectError = e.message || String(e);
+      console.warn('detection error:', e);
+      lastDetections = [];
+    }
+    detectRunning = false;
+  }
+
+  function renderLoop() {
     if (!running) return;
     ctx.save();
     ctx.clearRect(0, 0, W, H);
-    if (isFlipped) { ctx.translate(W,0); ctx.scale(-1,1); }
+    if (isFlipped) { ctx.translate(W, 0); ctx.scale(-1, 1); }
     ctx.drawImage(video, 0, 0, W, H);
     ctx.restore();
 
     if (activeSticker !== 'none') {
-      try {
-        const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks();
-        detections.forEach(d => {
-          try {
-            const lms = d.landmarks;
-            const box = d.detection.box;
-            const faceW = box.width;
-            const faceX = isFlipped ? W - box.x - faceW : box.x;
-            const faceY = box.y;
-            const pts = lms.positions.map(p => ({ x: isFlipped ? W - p.x : p.x, y: p.y }));
-            drawSticker(pts, faceX, faceY, faceW);
-          } catch(e) { console.warn('sticker draw error:', e); }
-        });
-      } catch(e) { console.warn('detection error:', e); }
+      lastDetections.forEach(d => {
+        try {
+          const box = d.detection.box;
+          const faceW = box.width;
+          const faceX = isFlipped ? W - box.x - faceW : box.x;
+          const faceY = box.y;
+          const pts = d.landmarks.positions.map(p => ({ x: isFlipped ? W - p.x : p.x, y: p.y }));
+          drawSticker(pts, faceX, faceY, faceW);
+        } catch(e) { console.warn('draw error:', e); }
+      });
     }
 
-    requestAnimationFrame(loop);
+    // debug overlay — remove after verified working
+    ctx.save();
+    ctx.font = `${W * 0.018}px monospace`;
+    ctx.fillStyle = lastDetectError ? '#f87171' : '#4ade80';
+    ctx.fillText(lastDetectError ? 'ERR: ' + lastDetectError.slice(0, 60) : `faces: ${lastDetections.length}`, W * 0.02, H * 0.05);
+    ctx.restore();
+
+    requestAnimationFrame(renderLoop);
   }
 
   function drawSticker(pts, fx, fy, fw) {
