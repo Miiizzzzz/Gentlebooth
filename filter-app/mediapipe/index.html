@@ -111,7 +111,7 @@
       border-top: 1px solid rgba(255,255,255,0.06);
       padding: 10px 0; flex-shrink: 0;
     }
-    .filter-strip { width: 100%; padding: 0 14px; overflow-x: auto; scrollbar-width: none; display: flex; gap: 8px; }
+    .filter-strip { width: 100%; padding: 0 14px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; display: flex; gap: 8px; touch-action: pan-x; }
     .filter-strip::-webkit-scrollbar { display: none; }
 
     .f-chip {
@@ -315,8 +315,10 @@
     // Draw stickers
     if (results.multiFaceLandmarks && activeSticker !== 'none') {
       results.multiFaceLandmarks.forEach(lms => {
-        const m = lms.map(l => ({ x: isFlipped ? 1 - l.x : l.x, y: l.y }));
-        drawSticker(m, W, H);
+        try {
+          const m = lms.map(l => ({ x: isFlipped ? 1 - l.x : l.x, y: l.y }));
+          drawSticker(m, W, H);
+        } catch(e) { console.warn('sticker draw error:', e); }
       });
     }
   });
@@ -336,7 +338,7 @@
   // ── STICKER DRAWING ──
   function drawSticker(lms, W, H) {
     const p = (i) => ({ x: lms[i].x * W, y: lms[i].y * H });
-    const faceW = (lms[454].x - lms[234].x) * W;
+    const faceW = Math.abs((lms[454].x - lms[234].x) * W);
     const topY  = lms[10].y * H;
     const topX  = lms[10].x * W;
 
