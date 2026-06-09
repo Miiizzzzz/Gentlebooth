@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>DeepAR Filter Cam</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --bg:#0a0a12; --surface:#14141f; --surface2:#1e1e2e; --text:#f0f0f5; --text-dim:#999; }
+    html,body { height:100svh; overflow:hidden; background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,sans-serif; overscroll-behavior:none; }
+    body { display:flex; flex-direction:column; align-items:center; max-width:520px; margin:0 auto; height:100svh; }
+
+    .loading-screen { position:fixed; inset:0; background:var(--bg); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; z-index:50; transition:opacity 0.4s; }
+    .loading-screen.hide { opacity:0; pointer-events:none; }
+    .loading-icon { font-size:60px; animation:bounce 1s infinite alternate; }
+    @keyframes bounce { to { transform:translateY(-10px); } }
+    .loading-title { font-size:22px; font-weight:800; background:linear-gradient(90deg,#f87171,#fb923c); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .loading-status { font-size:13px; color:var(--text-dim); }
+    .progress-bar { width:180px; height:4px; background:var(--surface2); border-radius:4px; overflow:hidden; }
+    .progress-fill { height:100%; background:linear-gradient(90deg,#f87171,#fb923c); width:0%; transition:width 0.4s; border-radius:4px; }
+
+    .header { width:100%; padding:12px 20px 8px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; gap:8px; }
+    .back-btn { font-size:12px; color:var(--text-dim); text-decoration:none; background:var(--surface2); padding:5px 12px; border-radius:50px; flex-shrink:0; }
+    .app-title { font-size:16px; font-weight:800; background:linear-gradient(90deg,#f87171,#fb923c); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+
+    .preview-wrap { width:100%; padding:0 14px; flex:1; min-height:0; display:flex; flex-direction:column; position:relative; }
+    #ar-preview { width:100%; flex:1; min-height:0; border-radius:22px; overflow:hidden; background:#111; box-shadow:0 8px 40px rgba(0,0,0,0.6); }
+    #ar-preview canvas, #ar-preview video { width:100%!important; height:100%!important; object-fit:cover; border-radius:22px; }
+    .flash { position:absolute; inset:0; margin:0 14px; border-radius:22px; background:white; pointer-events:none; opacity:0; }
+    .flash.pop { animation:flash-anim 0.45s ease-out forwards; }
+    @keyframes flash-anim { 0%{opacity:1} 100%{opacity:0} }
+
+    .filter-name { font-size:13px; font-weight:700; color:#fff; margin:6px 0 2px; text-align:center; flex-shrink:0; }
+    .filter-strip-wrap { width:100%; background:var(--surface); border-top:1px solid rgba(255,255,255,0.06); padding:10px 0; flex-shrink:0; }
+    .filter-strip { width:100%; padding:0 14px; overflow-x:auto; scrollbar-width:none; display:flex; gap:8px; }
+    .filter-strip::-webkit-scrollbar { display:none; }
+    .f-chip { flex-shrink:0; display:flex; flex-direction:column; align-items:center; gap:5px; cursor:pointer; user-select:none; }
+    .f-chip:active .f-circle { transform:scale(0.88); }
+    .f-chip.active .f-circle { border-color:#f87171; box-shadow:0 0 12px rgba(248,113,113,0.4); transform:scale(1.08); }
+    .f-chip.active .f-label { color:#f87171; }
+    .f-circle { width:60px; height:60px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:28px; border:3px solid rgba(255,255,255,0.12); background:var(--surface2); transition:border-color 0.15s,transform 0.15s,box-shadow 0.15s; }
+    .f-label { font-size:10px; font-weight:700; color:#bbb; white-space:nowrap; transition:color 0.15s; }
+
+    .snap-row { margin:10px 0 14px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .snap-btn { width:72px; height:72px; border-radius:50%; border:none; cursor:pointer; background:conic-gradient(#f87171,#fb923c,#f87171); padding:4px; box-shadow:0 0 24px rgba(248,113,113,0.4); transition:transform 0.15s; }
+    .snap-btn:active { transform:scale(0.9); }
+    .snap-btn:disabled { opacity:0.4; cursor:not-allowed; transform:none; }
+    .snap-inner { width:100%; height:100%; border-radius:50%; background:var(--bg); display:flex; align-items:center; justify-content:center; font-size:26px; }
+
+    .captured-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.92); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px; padding:24px; z-index:40; opacity:0; pointer-events:none; transition:opacity 0.25s; }
+    .captured-overlay.show { opacity:1; pointer-events:all; }
+    .captured-img { max-width:100%; max-height:68vh; border-radius:20px; box-shadow:0 12px 48px rgba(0,0,0,0.7); }
+    .captured-actions { display:flex; gap:12px; }
+    .btn-retake { background:var(--surface2); color:var(--text); border:none; border-radius:50px; padding:13px 28px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; }
+    .btn-save { background:linear-gradient(135deg,#f87171,#fb923c); color:#fff; border:none; border-radius:50px; padding:13px 28px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; text-decoration:none; display:inline-flex; align-items:center; gap:6px; }
+  </style>
+</head>
+<body>
+  <div class="loading-screen" id="loadingScreen">
+    <div class="loading-icon">🔴</div>
+    <div class="loading-title">DeepAR</div>
+    <div class="loading-status" id="loadingStatus">กำลังโหลด...</div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+
+  <div class="header">
+    <a class="back-btn" href="../">← กลับ</a>
+    <span class="app-title">DeepAR 🔴</span>
+    <div style="width:44px"></div>
+  </div>
+
+  <div class="preview-wrap">
+    <div id="ar-preview"><div class="flash" id="flash"></div></div>
+  </div>
+
+  <div class="filter-name" id="filterName">✨ ไม่มีฟิลเตอร์</div>
+  <div class="filter-strip-wrap"><div class="filter-strip" id="filterStrip"></div></div>
+  <div class="snap-row">
+    <button class="snap-btn" id="snapBtn" onclick="takePhoto()" disabled>
+      <div class="snap-inner">📸</div>
+    </button>
+  </div>
+
+  <div class="captured-overlay" id="capturedOverlay">
+    <img class="captured-img" id="capturedImg" src="" alt="captured"/>
+    <div class="captured-actions">
+      <button class="btn-retake" onclick="retake()">↩ ถ่ายใหม่</button>
+      <a class="btn-save" id="saveBtn" download="deepar-filter.jpg">⬇ บันทึก</a>
+    </div>
+  </div>
+
+  <script type="module">
+    import * as deepar from 'https://cdn.jsdelivr.net/npm/deepar@5.6.22/js/deepar.esm.js';
+    const BASE = 'https://cdn.jsdelivr.net/npm/deepar@5.6.22/effects/';
+    const LICENSE = '5c45eac1e0ba1091078925545c91779ce82a20582de19f9b8e15a8e705c94ed9aa2b3d09ee26b2e8';
+
+    const FILTERS = [
+      { id:'none',               emoji:'✨', name:'ปกติ',         color:'#4b5563', path:null },
+      { id:'dalmatian',          emoji:'🐶', name:'ดัลเมเชียน',   color:'#f59e0b', path:BASE+'dalmatian' },
+      { id:'lion',               emoji:'🦁', name:'สิงโต',        color:'#f97316', path:BASE+'lion' },
+      { id:'koala',              emoji:'🐨', name:'โคอาล่า',      color:'#6b7280', path:BASE+'koala' },
+      { id:'aviators',           emoji:'🕶️', name:'แว่นกันแดด',  color:'#06b6d4', path:BASE+'aviators' },
+      { id:'galaxy_background',  emoji:'🌌', name:'กาแล็กซี่',   color:'#7c3aed', path:BASE+'galaxy_background' },
+      { id:'background_blur',    emoji:'🌫️', name:'เบลอฉากหลัง',color:'#94a3b8', path:BASE+'background_blur.deepar' },
+    ];
+
+    let deepAR = null, activeId = 'none';
+    const loadScr = document.getElementById('loadingScreen');
+    const progFill = document.getElementById('progressFill');
+    const loadSt = document.getElementById('loadingStatus');
+    const stripEl = document.getElementById('filterStrip');
+    const nameEl = document.getElementById('filterName');
+    const snapBtn = document.getElementById('snapBtn');
+    const flashEl = document.getElementById('flash');
+    const overlay = document.getElementById('capturedOverlay');
+    const captImg = document.getElementById('capturedImg');
+    const saveBtn = document.getElementById('saveBtn');
+
+    FILTERS.forEach(f => {
+      const chip = document.createElement('div');
+      chip.className = 'f-chip' + (f.id==='none'?' active':'');
+      chip.dataset.id = f.id;
+      chip.innerHTML = `<div class="f-circle" style="background:${f.color}22"><span>${f.emoji}</span></div><span class="f-label">${f.name}</span>`;
+      chip.addEventListener('click', async () => {
+        if (!deepAR || activeId===f.id) return;
+        activeId = f.id;
+        stripEl.querySelectorAll('.f-chip').forEach(c => c.classList.toggle('active', c.dataset.id===f.id));
+        nameEl.textContent = f.emoji+' '+f.name;
+        f.path ? await deepAR.switchEffect(f.path) : await deepAR.clearEffect();
+      });
+      stripEl.appendChild(chip);
+    });
+
+    progFill.style.width = '20%'; loadSt.textContent = 'โหลด DeepAR SDK...';
+    try {
+      deepAR = await deepar.initialize({ licenseKey:LICENSE, previewElement:document.getElementById('ar-preview'), rootPath:'https://cdn.jsdelivr.net/npm/deepar@5.6.22/' });
+      progFill.style.width = '70%'; loadSt.textContent = 'เปิดกล้อง...';
+      await deepAR.startCamera({ facingMode:'user' });
+      progFill.style.width = '100%'; loadSt.textContent = 'พร้อมแล้ว!';
+      setTimeout(() => { loadScr.classList.add('hide'); snapBtn.disabled = false; }, 400);
+    } catch(e) { loadSt.textContent = 'Error: '+e.message; }
+
+    window.takePhoto = async () => {
+      if (!deepAR) return;
+      flashEl.classList.remove('pop'); void flashEl.offsetWidth; flashEl.classList.add('pop');
+      try {
+        const url = await deepAR.takeScreenshot();
+        captImg.src = url; saveBtn.href = url; overlay.classList.add('show');
+      } catch(e) { console.error(e); }
+    };
+    window.retake = () => overlay.classList.remove('show');
+  </script>
+</body>
+</html>

@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>face-api.js Filter Cam</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --bg:#0a0a12; --surface:#14141f; --surface2:#1e1e2e; --text:#f0f0f5; --text-dim:#999; --purple:#818cf8; --pink:#e879f9; }
+    html,body { height:100svh; overflow:hidden; background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,sans-serif; overscroll-behavior:none; }
+    body { display:flex; flex-direction:column; align-items:center; max-width:520px; margin:0 auto; height:100svh; }
+
+    .loading-screen { position:fixed; inset:0; background:var(--bg); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; z-index:50; transition:opacity 0.4s; }
+    .loading-screen.hide { opacity:0; pointer-events:none; }
+    .loading-icon { font-size:60px; animation:bounce 1s infinite alternate; }
+    @keyframes bounce { to { transform:translateY(-10px); } }
+    .loading-title { font-size:22px; font-weight:800; background:linear-gradient(90deg,var(--purple),var(--pink)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .loading-status { font-size:13px; color:var(--text-dim); }
+    .progress-bar { width:180px; height:4px; background:var(--surface2); border-radius:4px; overflow:hidden; }
+    .progress-fill { height:100%; background:linear-gradient(90deg,var(--purple),var(--pink)); width:0%; transition:width 0.4s; border-radius:4px; }
+
+    .header { width:100%; padding:12px 20px 8px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; gap:8px; }
+    .back-btn { font-size:12px; color:var(--text-dim); text-decoration:none; background:var(--surface2); padding:5px 12px; border-radius:50px; flex-shrink:0; }
+    .app-title { font-size:16px; font-weight:800; background:linear-gradient(90deg,var(--purple),var(--pink)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .icon-btn { width:38px; height:38px; background:var(--surface2); border:none; border-radius:50%; font-size:17px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:transform 0.15s; flex-shrink:0; }
+    .icon-btn:active { transform:scale(0.88); }
+
+    .preview-wrap { width:100%; padding:0 14px; flex:1; min-height:0; display:flex; flex-direction:column; position:relative; }
+    canvas#output { width:100%; flex:1; min-height:0; border-radius:22px; display:block; background:#111; box-shadow:0 8px 40px rgba(0,0,0,0.6); }
+    video#video { display:none; }
+    .flash { position:absolute; inset:0; margin:0 14px; border-radius:22px; background:white; pointer-events:none; opacity:0; }
+    .flash.pop { animation:flash-anim 0.45s ease-out forwards; }
+    @keyframes flash-anim { 0%{opacity:1} 100%{opacity:0} }
+
+    .filter-name { font-size:13px; font-weight:700; color:#fff; margin:6px 0 2px; text-align:center; flex-shrink:0; }
+    .filter-strip-wrap { width:100%; background:var(--surface); border-top:1px solid rgba(255,255,255,0.06); padding:10px 0; flex-shrink:0; }
+    .filter-strip { width:100%; padding:0 14px; overflow-x:auto; scrollbar-width:none; display:flex; gap:8px; }
+    .filter-strip::-webkit-scrollbar { display:none; }
+    .f-chip { flex-shrink:0; display:flex; flex-direction:column; align-items:center; gap:5px; cursor:pointer; user-select:none; }
+    .f-chip:active .f-circle { transform:scale(0.88); }
+    .f-chip.active .f-circle { border-color:var(--purple); box-shadow:0 0 12px rgba(129,140,248,0.4); transform:scale(1.08); }
+    .f-chip.active .f-label { color:var(--purple); }
+    .f-circle { width:60px; height:60px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:28px; border:3px solid rgba(255,255,255,0.12); background:var(--surface2); transition:border-color 0.15s,transform 0.15s,box-shadow 0.15s; }
+    .f-label { font-size:10px; font-weight:700; color:#bbb; white-space:nowrap; transition:color 0.15s; }
+
+    .snap-row { margin:10px 0 14px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .snap-btn { width:72px; height:72px; border-radius:50%; border:none; cursor:pointer; background:conic-gradient(var(--purple),var(--pink),var(--purple)); padding:4px; box-shadow:0 0 24px rgba(129,140,248,0.4); transition:transform 0.15s; }
+    .snap-btn:active { transform:scale(0.9); }
+    .snap-btn:disabled { opacity:0.4; cursor:not-allowed; transform:none; }
+    .snap-inner { width:100%; height:100%; border-radius:50%; background:var(--bg); display:flex; align-items:center; justify-content:center; font-size:26px; }
+
+    .captured-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.92); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px; padding:24px; z-index:40; opacity:0; pointer-events:none; transition:opacity 0.25s; }
+    .captured-overlay.show { opacity:1; pointer-events:all; }
+    .captured-img { max-width:100%; max-height:68vh; border-radius:20px; box-shadow:0 12px 48px rgba(0,0,0,0.7); }
+    .captured-actions { display:flex; gap:12px; }
+    .btn-retake { background:var(--surface2); color:var(--text); border:none; border-radius:50px; padding:13px 28px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; }
+    .btn-save { background:linear-gradient(135deg,var(--purple),var(--pink)); color:#fff; border:none; border-radius:50px; padding:13px 28px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; text-decoration:none; display:inline-flex; align-items:center; gap:6px; }
+  </style>
+</head>
+<body>
+  <div class="loading-screen" id="loadingScreen">
+    <div class="loading-icon">🟣</div>
+    <div class="loading-title">face-api.js</div>
+    <div class="loading-status" id="loadingStatus">กำลังโหลด model...</div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+
+  <div class="header">
+    <a class="back-btn" href="../">← กลับ</a>
+    <span class="app-title">face-api.js 🟣</span>
+    <button class="icon-btn" id="flipBtn">🔄</button>
+  </div>
+
+  <div class="preview-wrap">
+    <canvas id="output"></canvas>
+    <video id="video" playsinline autoplay muted></video>
+    <div class="flash" id="flash"></div>
+  </div>
+
+  <div class="filter-name" id="filterName">✨ ปกติ</div>
+  <div class="filter-strip-wrap"><div class="filter-strip" id="filterStrip"></div></div>
+  <div class="snap-row">
+    <button class="snap-btn" id="snapBtn" onclick="takeSnap()" disabled>
+      <div class="snap-inner">📸</div>
+    </button>
+  </div>
+
+  <div class="captured-overlay" id="capturedOverlay">
+    <img class="captured-img" id="capturedImg" src="" alt="captured"/>
+    <div class="captured-actions">
+      <button class="btn-retake" onclick="retake()">↩ ถ่ายใหม่</button>
+      <a class="btn-save" id="saveBtn" download="faceapi-filter.jpg">⬇ บันทึก</a>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+  <script>
+  const canvas  = document.getElementById('output');
+  const ctx     = canvas.getContext('2d');
+  const video   = document.getElementById('video');
+  const flashEl = document.getElementById('flash');
+  const snapBtn = document.getElementById('snapBtn');
+  const overlay = document.getElementById('capturedOverlay');
+  const captImg = document.getElementById('capturedImg');
+  const saveLink= document.getElementById('saveBtn');
+  const stripEl = document.getElementById('filterStrip');
+  const nameEl  = document.getElementById('filterName');
+  const loadScr = document.getElementById('loadingScreen');
+  const loadSt  = document.getElementById('loadingStatus');
+  const progFill= document.getElementById('progressFill');
+
+  const MODELS = 'https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/weights';
+
+  const STICKERS = [
+    { id:'none',    emoji:'✨', name:'ปกติ',     color:'#4b5563' },
+    { id:'cat',     emoji:'🐱', name:'แมว',      color:'#f472b6' },
+    { id:'dog',     emoji:'🐶', name:'หมา',      color:'#f59e0b' },
+    { id:'crown',   emoji:'👑', name:'มงกุฎ',    color:'#eab308' },
+    { id:'glasses', emoji:'🕶️', name:'แว่น',    color:'#06b6d4' },
+    { id:'flowers', emoji:'🌸', name:'ดอกไม้',   color:'#ec4899' },
+    { id:'blush',   emoji:'🥰', name:'แก้มชมพู', color:'#fb7185' },
+  ];
+
+  let activeSticker = 'none';
+  let isFlipped = true;
+  let W = 640, H = 480;
+  let running = false;
+
+  STICKERS.forEach(f => {
+    const chip = document.createElement('div');
+    chip.className = 'f-chip'+(f.id==='none'?' active':'');
+    chip.dataset.id = f.id;
+    chip.innerHTML = `<div class="f-circle" style="background:${f.color}22"><span>${f.emoji}</span></div><span class="f-label">${f.name}</span>`;
+    chip.addEventListener('click', () => {
+      activeSticker = f.id;
+      stripEl.querySelectorAll('.f-chip').forEach(c => c.classList.toggle('active', c.dataset.id===f.id));
+      nameEl.textContent = f.emoji+' '+f.name;
+    });
+    stripEl.appendChild(chip);
+  });
+
+  document.getElementById('flipBtn').addEventListener('click', () => { isFlipped = !isFlipped; });
+
+  async function init() {
+    progFill.style.width = '20%'; loadSt.textContent = 'โหลด TinyFaceDetector...';
+    await faceapi.nets.tinyFaceDetector.loadFromUri(MODELS);
+    progFill.style.width = '55%'; loadSt.textContent = 'โหลด Face Landmarks...';
+    await faceapi.nets.faceLandmark68Net.loadFromUri(MODELS);
+    progFill.style.width = '80%'; loadSt.textContent = 'เปิดกล้อง...';
+
+    const stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:'user', width:{ideal:1280}, height:{ideal:720} }, audio:false });
+    video.srcObject = stream;
+    await video.play();
+    W = video.videoWidth || 640;
+    H = video.videoHeight || 480;
+    canvas.width = W; canvas.height = H;
+
+    progFill.style.width = '100%'; loadSt.textContent = 'พร้อมแล้ว!';
+    setTimeout(() => { loadScr.classList.add('hide'); snapBtn.disabled = false; running = true; loop(); }, 400);
+  }
+
+  async function loop() {
+    if (!running) return;
+    ctx.save();
+    ctx.clearRect(0, 0, W, H);
+    if (isFlipped) { ctx.translate(W,0); ctx.scale(-1,1); }
+    ctx.drawImage(video, 0, 0, W, H);
+    ctx.restore();
+
+    if (activeSticker !== 'none') {
+      const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks();
+      detections.forEach(d => {
+        const lms = d.landmarks;
+        const box = d.detection.box;
+        const faceW = box.width;
+        const faceX = isFlipped ? W - box.x - faceW : box.x;
+        const faceY = box.y;
+        const pts = lms.positions.map(p => ({ x: isFlipped ? W - p.x : p.x, y: p.y }));
+        drawSticker(pts, faceX, faceY, faceW);
+      });
+    }
+
+    requestAnimationFrame(loop);
+  }
+
+  function drawSticker(pts, fx, fy, fw) {
+    switch(activeSticker) {
+      case 'cat':     drawCatEars(fx, fy, fw); drawWhiskers(pts, fw); break;
+      case 'dog':     drawDogEars(fx, fy, fw); break;
+      case 'crown':   drawCrown(fx, fy, fw); break;
+      case 'glasses': drawGlasses(pts, fw); break;
+      case 'flowers': drawFlowerCrown(fx, fy, fw); break;
+      case 'blush':   drawBlush(pts, fw); break;
+    }
+  }
+
+  function drawCatEars(fx, fy, fw) {
+    const s = fw * 0.22;
+    [[fx + fw*0.15, -1], [fx + fw*0.85, 1]].forEach(([cx]) => {
+      ctx.save(); ctx.translate(cx, fy - s*0.1);
+      ctx.beginPath(); ctx.moveTo(0,s*0.8); ctx.lineTo(-s*0.55,-s*0.85); ctx.lineTo(s*0.55,-s*0.85); ctx.closePath();
+      ctx.fillStyle='#ff9eb5'; ctx.fill();
+      ctx.beginPath(); ctx.moveTo(0,s*0.4); ctx.lineTo(-s*0.28,-s*0.55); ctx.lineTo(s*0.28,-s*0.55); ctx.closePath();
+      ctx.fillStyle='#ffd6e0'; ctx.fill();
+      ctx.restore();
+    });
+  }
+
+  function drawWhiskers(pts, fw) {
+    const nose = pts[30];
+    const len = fw * 0.22;
+    ctx.save(); ctx.strokeStyle='rgba(80,80,80,0.7)'; ctx.lineWidth=fw*0.012; ctx.lineCap='round';
+    [[-1,-0.08],[-1,0.08],[-1,0.22],[1,-0.08],[1,0.08],[1,0.22]].forEach(([dir,dy]) => {
+      ctx.beginPath(); ctx.moveTo(nose.x, nose.y+fw*dy); ctx.lineTo(nose.x+dir*len, nose.y+fw*(dy+dir*0.04)); ctx.stroke();
+    });
+    ctx.restore();
+  }
+
+  function drawDogEars(fx, fy, fw) {
+    const w=fw*0.3, h=fw*0.42;
+    [[fx-w*0.3,0.08],[fx+fw-w*0.7,-0.08]].forEach(([ex,rot]) => {
+      ctx.save(); ctx.translate(ex+w/2, fy+h*0.05); ctx.rotate(rot);
+      ctx.beginPath(); ctx.ellipse(0,h*0.3,w*0.48,h*0.54,0,0,Math.PI*2);
+      ctx.fillStyle='#c8a26b'; ctx.fill(); ctx.strokeStyle='#a0845a'; ctx.lineWidth=fw*0.012; ctx.stroke();
+      ctx.beginPath(); ctx.ellipse(0,h*0.38,w*0.28,h*0.36,0,0,Math.PI*2);
+      ctx.fillStyle='#e8c99a'; ctx.fill(); ctx.restore();
+    });
+  }
+
+  function drawCrown(fx, fy, fw) {
+    const cw=fw*0.78, ch=fw*0.38, x=fx+fw*0.11, y=fy-ch*1.0;
+    ctx.save(); ctx.fillStyle='#FFD700'; ctx.strokeStyle='#e6a800'; ctx.lineWidth=fw*0.016;
+    ctx.beginPath();
+    ctx.moveTo(x,y+ch); ctx.lineTo(x,y+ch*0.35); ctx.lineTo(x+cw*0.18,y+ch*0.65);
+    ctx.lineTo(x+cw*0.32,y); ctx.lineTo(x+cw*0.5,y+ch*0.55); ctx.lineTo(x+cw*0.68,y);
+    ctx.lineTo(x+cw*0.82,y+ch*0.65); ctx.lineTo(x+cw,y+ch*0.35); ctx.lineTo(x+cw,y+ch); ctx.closePath();
+    ctx.fill(); ctx.stroke();
+    [['#ff4444',0.25],['#4488ff',0.5],['#ff4444',0.75]].forEach(([c,t]) => {
+      ctx.beginPath(); ctx.arc(x+cw*t,y+ch*0.55,ch*0.1,0,Math.PI*2); ctx.fillStyle=c; ctx.fill();
+    });
+    ctx.restore();
+  }
+
+  function drawGlasses(pts, fw) {
+    const le = pts[36], re = pts[45];
+    const r = fw*0.13;
+    ctx.save(); ctx.strokeStyle='#1a1a2e'; ctx.lineWidth=r*0.16; ctx.fillStyle='rgba(100,180,255,0.22)';
+    [le,re].forEach(e => { ctx.beginPath(); ctx.arc(e.x,e.y,r,0,Math.PI*2); ctx.fill(); ctx.stroke(); });
+    ctx.beginPath(); ctx.moveTo(le.x+r,le.y); ctx.lineTo(re.x-r,re.y); ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawFlowerCrown(fx, fy, fw) {
+    const fr=fw*0.07, count=7;
+    const colors=['#ff9eb5','#ffb347','#ff6b9d','#ffd700','#c8a2c8','#7ec8e3','#ffa07a'];
+    for(let i=0;i<count;i++) {
+      const t=(i/(count-1))-0.5;
+      const ex=fx+fw*0.5+t*fw*0.95, ey=fy-fr*3-(1-Math.abs(t*2))*fw*0.05;
+      drawFlower(ex,ey,fr,colors[i]);
+    }
+  }
+
+  function drawFlower(x,y,r,color) {
+    ctx.save();
+    for(let i=0;i<5;i++) {
+      ctx.save(); ctx.translate(x,y); ctx.rotate((i/5)*Math.PI*2);
+      ctx.beginPath(); ctx.ellipse(0,-r*1.3,r*0.5,r*0.85,0,0,Math.PI*2);
+      ctx.fillStyle=color; ctx.fill(); ctx.restore();
+    }
+    ctx.beginPath(); ctx.arc(x,y,r*0.48,0,Math.PI*2); ctx.fillStyle='#FFD700'; ctx.fill();
+    ctx.restore();
+  }
+
+  function drawBlush(pts, fw) {
+    const lc=pts[1], rc=pts[15];
+    const r=fw*0.1;
+    ctx.save(); ctx.globalAlpha=0.45;
+    [lc,rc].forEach(c => {
+      const grad=ctx.createRadialGradient(c.x,c.y,0,c.x,c.y,r);
+      grad.addColorStop(0,'#ff9eb5'); grad.addColorStop(1,'rgba(255,158,181,0)');
+      ctx.beginPath(); ctx.arc(c.x,c.y,r,0,Math.PI*2); ctx.fillStyle=grad; ctx.fill();
+    });
+    ctx.restore();
+  }
+
+  window.takeSnap = function() {
+    flashEl.classList.remove('pop'); void flashEl.offsetWidth; flashEl.classList.add('pop');
+    const url = canvas.toDataURL('image/jpeg', 0.95);
+    captImg.src = url; saveLink.href = url; overlay.classList.add('show');
+  };
+  window.retake = () => overlay.classList.remove('show');
+
+  init().catch(e => { loadSt.textContent = 'Error: '+e.message; });
+  </script>
+</body>
+</html>
