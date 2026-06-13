@@ -22,7 +22,7 @@
     .header { width:100%; padding:12px 20px 8px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; gap:8px; }
     .back-btn { font-size:12px; color:var(--text-dim); text-decoration:none; background:var(--surface2); padding:5px 10px; border-radius:50px; flex-shrink:0; }
     .sdk-tabs { display:flex; gap:3px; background:var(--surface2); border-radius:50px; padding:3px; }
-    .sdk-tab { padding:5px 8px; border-radius:50px; text-decoration:none; font-size:10px; font-weight:700; color:var(--text-dim); transition:background 0.15s,color 0.15s; white-space:nowrap; }
+    .sdk-tab { padding:4px 7px; border-radius:50px; text-decoration:none; font-size:10px; font-weight:700; color:var(--text-dim); transition:background 0.15s,color 0.15s; white-space:nowrap; }
     .sdk-tab.active { background:linear-gradient(135deg,var(--purple),var(--pink)); color:#0a0520; }
     .icon-btn { width:38px; height:38px; background:var(--surface2); border:none; border-radius:50%; font-size:17px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:transform 0.15s; flex-shrink:0; }
     .icon-btn:active { transform:scale(0.88); }
@@ -70,9 +70,10 @@
   <div class="header">
     <a class="back-btn" href="../">← กลับ</a>
     <div class="sdk-tabs">
-      <a class="sdk-tab" href="../mediapipe/">🟢 Media</a>
-      <a class="sdk-tab" href="../deepar/">🔴 DeepAR</a>
-      <a class="sdk-tab active" href="./">🟣 Face</a>
+      <a class="sdk-tab" href="../mediapipe/">🟢 MP</a>
+      <a class="sdk-tab" href="../deepar/">🔴 AR</a>
+      <a class="sdk-tab active" href="./">🟣 FA</a>
+      <a class="sdk-tab" href="../snap/">👻 Snap</a>
     </div>
     <button class="icon-btn" id="flipBtn">🔄</button>
   </div>

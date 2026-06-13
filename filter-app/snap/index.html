@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>Snap Camera Kit Filter</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --bg:#0a0a0a; --surface:#141414; --surface2:#1e1e1e; --text:#f0f0f5; --text-dim:#999; --snap:#FFFC00; --snap2:#f5e800; }
+    html,body { height:100svh; overflow:hidden; background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,sans-serif; overscroll-behavior:none; -webkit-tap-highlight-color:transparent; }
+    body { display:flex; flex-direction:column; align-items:center; max-width:520px; margin:0 auto; height:100svh; }
+
+    /* ── LOADING ── */
+    .loading-screen { position:fixed; inset:0; background:var(--bg); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; z-index:50; transition:opacity 0.4s; }
+    .loading-screen.hide { opacity:0; pointer-events:none; }
+    .loading-icon { font-size:60px; animation:bounce 1s infinite alternate; }
+    @keyframes bounce { to { transform:translateY(-10px); } }
+    .loading-title { font-size:22px; font-weight:800; color:var(--snap); }
+    .loading-status { font-size:13px; color:var(--text-dim); text-align:center; padding:0 24px; }
+    .progress-bar { width:180px; height:4px; background:var(--surface2); border-radius:4px; overflow:hidden; }
+    .progress-fill { height:100%; background:var(--snap); width:0%; transition:width 0.4s; border-radius:4px; }
+
+    /* ── SETUP SCREEN (shown when no token) ── */
+    .setup-screen { position:fixed; inset:0; background:var(--bg); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; z-index:49; padding:28px; }
+    .setup-screen.hide { display:none; }
+    .setup-icon { font-size:56px; }
+    .setup-title { font-size:20px; font-weight:800; color:var(--snap); }
+    .setup-desc { font-size:13px; color:var(--text-dim); text-align:center; line-height:1.7; }
+    .step-list { width:100%; max-width:320px; display:flex; flex-direction:column; gap:10px; }
+    .step { display:flex; align-items:flex-start; gap:10px; }
+    .step-num { width:24px; height:24px; border-radius:50%; background:var(--snap); color:#000; font-size:12px; font-weight:900; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .step-text { font-size:12px; color:var(--text-dim); line-height:1.6; }
+    .step-text a { color:var(--snap); text-decoration:none; }
+    .token-input-wrap { width:100%; max-width:320px; display:flex; flex-direction:column; gap:8px; }
+    .token-label { font-size:11px; font-weight:700; color:var(--text-dim); }
+    .token-input { width:100%; background:var(--surface2); border:1px solid rgba(255,252,0,0.2); border-radius:10px; padding:10px 14px; color:var(--text); font-size:12px; font-family:monospace; outline:none; }
+    .token-input:focus { border-color:rgba(255,252,0,0.5); }
+    .token-input::placeholder { color:#555; }
+    .token-btn { background:var(--snap); color:#000; border:none; border-radius:50px; padding:12px 32px; font-size:14px; font-weight:800; cursor:pointer; font-family:inherit; width:100%; max-width:320px; }
+    .token-btn:disabled { opacity:0.4; cursor:not-allowed; }
+
+    /* ── HEADER ── */
+    .header { width:100%; padding:12px 20px 8px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; gap:6px; }
+    .back-btn { font-size:12px; color:var(--text-dim); text-decoration:none; background:var(--surface2); padding:5px 10px; border-radius:50px; flex-shrink:0; }
+    .sdk-tabs { display:flex; gap:3px; background:var(--surface2); border-radius:50px; padding:3px; }
+    .sdk-tab { padding:4px 7px; border-radius:50px; text-decoration:none; font-size:10px; font-weight:700; color:var(--text-dim); transition:background 0.15s,color 0.15s; white-space:nowrap; }
+    .sdk-tab.active { background:var(--snap); color:#111; }
+
+    /* ── CAMERA ── */
+    .preview-wrap { width:100%; padding:0 14px; flex:1; min-height:0; display:flex; flex-direction:column; position:relative; }
+    canvas#snapCanvas { width:100%; flex:1; min-height:0; border-radius:22px; display:block; background:#111; box-shadow:0 8px 40px rgba(0,0,0,0.6); object-fit:cover; }
+    .flash { position:absolute; inset:0; margin:0 14px; border-radius:22px; background:white; pointer-events:none; opacity:0; }
+    .flash.pop { animation:flash-anim 0.45s ease-out forwards; }
+    @keyframes flash-anim { 0%{opacity:1} 100%{opacity:0} }
+
+    /* ── FILTER STRIP ── */
+    .filter-name { font-size:13px; font-weight:700; color:#fff; margin:6px 0 2px; text-align:center; flex-shrink:0; }
+    .filter-strip-wrap { width:100%; background:var(--surface); border-top:1px solid rgba(255,255,255,0.06); padding:10px 0; flex-shrink:0; }
+    .filter-strip { width:100%; padding:0 14px; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; display:flex; gap:8px; touch-action:pan-x; }
+    .filter-strip::-webkit-scrollbar { display:none; }
+    .f-chip { flex-shrink:0; display:flex; flex-direction:column; align-items:center; gap:5px; cursor:pointer; user-select:none; }
+    .f-chip:active .f-circle { transform:scale(0.88); }
+    .f-chip.active .f-circle { border-color:var(--snap); box-shadow:0 0 12px rgba(255,252,0,0.35); transform:scale(1.08); }
+    .f-chip.active .f-label { color:var(--snap); }
+    .f-circle { width:60px; height:60px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:28px; border:3px solid rgba(255,255,255,0.12); background:var(--surface2); transition:border-color 0.15s,transform 0.15s,box-shadow 0.15s; }
+    .f-label { font-size:10px; font-weight:700; color:#bbb; white-space:nowrap; transition:color 0.15s; }
+
+    /* ── SNAP ── */
+    .snap-row { margin:10px 0 14px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .snap-btn { width:72px; height:72px; border-radius:50%; border:none; cursor:pointer; background:var(--snap); padding:4px; box-shadow:0 0 24px rgba(255,252,0,0.4); transition:transform 0.15s; }
+    .snap-btn:active { transform:scale(0.9); }
+    .snap-btn:disabled { opacity:0.4; cursor:not-allowed; transform:none; }
+    .snap-inner { width:100%; height:100%; border-radius:50%; background:var(--bg); display:flex; align-items:center; justify-content:center; font-size:26px; }
+
+    /* ── CAPTURED ── */
+    .captured-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.92); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px; padding:24px; z-index:40; opacity:0; pointer-events:none; transition:opacity 0.25s; }
+    .captured-overlay.show { opacity:1; pointer-events:all; }
+    .captured-img { max-width:100%; max-height:68vh; border-radius:20px; box-shadow:0 12px 48px rgba(0,0,0,0.7); }
+    .captured-actions { display:flex; gap:12px; }
+    .btn-retake { background:var(--surface2); color:var(--text); border:none; border-radius:50px; padding:13px 28px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; }
+    .btn-save { background:var(--snap); color:#000; border:none; border-radius:50px; padding:13px 28px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; text-decoration:none; display:inline-flex; align-items:center; gap:6px; }
+  </style>
+</head>
+<body>
+
+  <!-- ── LOADING ── -->
+  <div class="loading-screen" id="loadingScreen">
+    <div class="loading-icon">👻</div>
+    <div class="loading-title">Snap Camera Kit</div>
+    <div class="loading-status" id="loadingStatus">กำลังโหลด...</div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+
+  <!-- ── SETUP (shown when no token configured) ── -->
+  <div class="setup-screen" id="setupScreen">
+    <div class="setup-icon">👻</div>
+    <div class="setup-title">Snap Camera Kit</div>
+    <div class="setup-desc">ต้องมี API Token จาก Snap Developer Portal ก่อนใช้งาน</div>
+
+    <div class="step-list">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-text">สมัครที่ <a href="https://developers.snap.com/camera-kit/quick-start/get-started" target="_blank">developers.snap.com</a> → Camera Kit → สร้าง App ใหม่</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-text">ไปที่ <strong>Credentials</strong> → คัดลอก <strong>API Token</strong></div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-text">ไปที่ <strong>Lens Groups</strong> → สร้าง group → เพิ่ม Lens ที่ต้องการ → คัดลอก <strong>Group ID</strong> และ <strong>Lens ID</strong></div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-text">วาง API Token ด้านล่าง แล้วกด เริ่ม</div>
+      </div>
+    </div>
+
+    <div class="token-input-wrap">
+      <div class="token-label">API TOKEN</div>
+      <input class="token-input" id="tokenInput" type="text" placeholder="วาง API Token ที่นี่..." spellcheck="false"/>
+      <div class="token-label" style="margin-top:8px">LENS GROUP ID</div>
+      <input class="token-input" id="groupInput" type="text" placeholder="วาง Lens Group ID ที่นี่..." spellcheck="false"/>
+    </div>
+
+    <button class="token-btn" id="startBtn" onclick="startWithToken()">👻 เริ่มใช้งาน</button>
+    <div style="font-size:11px; color:#555; text-align:center;">Token จะถูกบันทึกใน localStorage ของ browser นี้เท่านั้น</div>
+  </div>
+
+  <!-- ── MAIN APP ── -->
+  <div class="header">
+    <a class="back-btn" href="../">← กลับ</a>
+    <div class="sdk-tabs">
+      <a class="sdk-tab" href="../mediapipe/">🟢 MP</a>
+      <a class="sdk-tab" href="../deepar/">🔴 AR</a>
+      <a class="sdk-tab" href="../faceapi/">🟣 FA</a>
+      <a class="sdk-tab active" href="./">👻 Snap</a>
+    </div>
+    <div style="width:38px"></div>
+  </div>
+
+  <div class="preview-wrap">
+    <canvas id="snapCanvas"></canvas>
+    <div class="flash" id="flash"></div>
+  </div>
+
+  <div class="filter-name" id="filterName">✨ ไม่มีฟิลเตอร์</div>
+  <div class="filter-strip-wrap"><div class="filter-strip" id="filterStrip"></div></div>
+
+  <div class="snap-row">
+    <button class="snap-btn" id="snapBtn" onclick="takeSnap()" disabled>
+      <div class="snap-inner">📸</div>
+    </button>
+  </div>
+
+  <div class="captured-overlay" id="capturedOverlay">
+    <img class="captured-img" id="capturedImg" src="" alt="captured"/>
+    <div class="captured-actions">
+      <button class="btn-retake" onclick="retake()">↩ ถ่ายใหม่</button>
+      <a class="btn-save" id="saveBtn" download="snap-filter.jpg">⬇ บันทึก</a>
+    </div>
+  </div>
+
+  <script type="module">
+    // ── CONFIG ─────────────────────────────────────────────────────────────────
+    // Fill these in OR use the setup screen below to enter via UI
+    const HARDCODED_TOKEN    = '';   // optional: paste API token here
+    const HARDCODED_GROUP_ID = '';   // optional: paste Lens Group ID here
+
+    // ── LENSES ─────────────────────────────────────────────────────────────────
+    // Add your Lens IDs here after creating a Lens Group in the developer portal.
+    // Each lens needs: { id: 'LENS_ID', name: 'Display Name', emoji: '...' }
+    // You can find lens IDs in Snap Lens Studio or the Camera Kit portal.
+    const LENSES = [
+      { id: 'none', name: 'ปกติ', emoji: '✨' },
+      // ตัวอย่าง — แทนที่ด้วย Lens ID จริงจาก portal:
+      // { id: 'YOUR_LENS_ID_1', name: 'Beauty', emoji: '💄' },
+      // { id: 'YOUR_LENS_ID_2', name: 'Dog', emoji: '🐶' },
+      // { id: 'YOUR_LENS_ID_3', name: 'Crown', emoji: '👑' },
+      // { id: 'YOUR_LENS_ID_4', name: 'Background', emoji: '🌸' },
+    ];
+
+    // ── STATE ───────────────────────────────────────────────────────────────────
+    const loadScr    = document.getElementById('loadingScreen');
+    const setupScr   = document.getElementById('setupScreen');
+    const progFill   = document.getElementById('progressFill');
+    const loadSt     = document.getElementById('loadingStatus');
+    const stripEl    = document.getElementById('filterStrip');
+    const nameEl     = document.getElementById('filterName');
+    const snapBtn    = document.getElementById('snapBtn');
+    const flashEl    = document.getElementById('flash');
+    const overlay    = document.getElementById('capturedOverlay');
+    const captImg    = document.getElementById('capturedImg');
+    const saveBtn    = document.getElementById('saveBtn');
+    const canvas     = document.getElementById('snapCanvas');
+
+    let cameraKit, session, activeId = 'none';
+
+    // ── TOKEN SETUP ─────────────────────────────────────────────────────────────
+    function getCredentials() {
+      return {
+        token:   HARDCODED_TOKEN   || localStorage.getItem('snap_api_token')   || '',
+        groupId: HARDCODED_GROUP_ID || localStorage.getItem('snap_group_id')    || '',
+      };
+    }
+
+    window.startWithToken = function() {
+      const t = document.getElementById('tokenInput').value.trim();
+      const g = document.getElementById('groupInput').value.trim();
+      if (!t) { alert('กรุณากรอก API Token'); return; }
+      if (!g) { alert('กรุณากรอก Lens Group ID'); return; }
+      localStorage.setItem('snap_api_token', t);
+      localStorage.setItem('snap_group_id', g);
+      setupScr.classList.add('hide');
+      initSnap(t, g);
+    };
+
+    // ── INIT ────────────────────────────────────────────────────────────────────
+    async function initSnap(token, groupId) {
+      try {
+        loadScr.style.display = 'flex';
+        progFill.style.width = '15%';
+        loadSt.textContent = 'โหลด Snap Camera Kit...';
+
+        const { bootstrapCameraKit, createMediaStreamSource, Transform2D } =
+          await import('https://esm.sh/@snap/camera-kit');
+
+        progFill.style.width = '40%';
+        loadSt.textContent = 'เชื่อมต่อกับ Snap...';
+
+        cameraKit = await bootstrapCameraKit({ apiToken: token });
+
+        progFill.style.width = '60%';
+        loadSt.textContent = 'สร้าง session...';
+
+        session = await cameraKit.createSession({ liveRenderTarget: canvas });
+
+        progFill.style.width = '75%';
+        loadSt.textContent = 'เปิดกล้อง...';
+
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
+          audio: false,
+        });
+        const source = createMediaStreamSource(stream, { cameraType: 'front' });
+        await session.setSource(source);
+        source.setTransform(Transform2D.MirrorX);
+
+        progFill.style.width = '90%';
+        loadSt.textContent = 'โหลด Lens รายการ...';
+
+        await session.play();
+
+        // Build filter strip
+        buildStrip(groupId);
+
+        progFill.style.width = '100%';
+        loadSt.textContent = 'พร้อมแล้ว!';
+        setTimeout(() => {
+          loadScr.classList.add('hide');
+          snapBtn.disabled = false;
+        }, 400);
+
+        // Store groupId for applyLens
+        cameraKit._groupId = groupId;
+
+      } catch(e) {
+        loadSt.textContent = 'Error: ' + (e.message || String(e));
+        progFill.style.background = '#f87171';
+        console.error('Snap Camera Kit error:', e);
+      }
+    }
+
+    function buildStrip(groupId) {
+      LENSES.forEach(f => {
+        const chip = document.createElement('div');
+        chip.className = 'f-chip' + (f.id === 'none' ? ' active' : '');
+        chip.dataset.id = f.id;
+        chip.innerHTML = `<div class="f-circle" style="background:${f.id==='none'?'#1a1a1a':'rgba(255,252,0,0.12)'}"><span>${f.emoji}</span></div><span class="f-label">${f.name}</span>`;
+        chip.addEventListener('click', async () => {
+          if (activeId === f.id) return;
+          activeId = f.id;
+          stripEl.querySelectorAll('.f-chip').forEach(c => c.classList.toggle('active', c.dataset.id === f.id));
+          nameEl.textContent = f.emoji + ' ' + f.name;
+          if (f.id === 'none') {
+            await session.clearLens();
+          } else {
+            try {
+              const lens = await cameraKit.lensRepository.loadLens(f.id, groupId);
+              await session.applyLens(lens);
+            } catch(e) {
+              console.error('Failed to load lens:', e);
+              nameEl.textContent = '❌ โหลด Lens ไม่ได้ — ตรวจ Lens ID';
+            }
+          }
+        });
+        stripEl.appendChild(chip);
+      });
+    }
+
+    // ── SNAP / CAPTURE ───────────────────────────────────────────────────────────
+    window.takeSnap = function() {
+      flashEl.classList.remove('pop'); void flashEl.offsetWidth; flashEl.classList.add('pop');
+      // Camera Kit renders to a WebGL canvas — need preserveDrawingBuffer or use toBlob trick
+      canvas.toBlob(blob => {
+        if (!blob) { alert('ไม่สามารถบันทึกภาพได้ — Canvas อาจต้องการ preserveDrawingBuffer'); return; }
+        const url = URL.createObjectURL(blob);
+        captImg.src = url;
+        saveBtn.href = url;
+        overlay.classList.add('show');
+      }, 'image/jpeg', 0.95);
+    };
+
+    window.retake = () => overlay.classList.remove('show');
+
+    // ── AUTO-START if credentials already saved ──────────────────────────────────
+    const creds = getCredentials();
+    if (creds.token && creds.groupId) {
+      setupScr.classList.add('hide');
+      initSnap(creds.token, creds.groupId);
+    } else {
+      loadScr.classList.add('hide');
+    }
+  </script>
+</body>
+</html>

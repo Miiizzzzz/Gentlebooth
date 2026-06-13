@@ -49,6 +49,7 @@
     .card.mediapipe::before { background: linear-gradient(90deg, #4ade80, #22d3ee); }
     .card.deepar::before    { background: linear-gradient(90deg, #f87171, #fb923c); }
     .card.faceapi::before   { background: linear-gradient(90deg, #818cf8, #e879f9); }
+    .card.snap::before      { background: linear-gradient(90deg, #FFFC00, #f5c400); }
     .card:hover { border-color: rgba(255,255,255,0.15); transform: translateY(-4px); }
 
     .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
@@ -88,6 +89,7 @@
     .card.mediapipe .try-btn { background: linear-gradient(135deg, #4ade80, #22d3ee); color: #0a1a0a; }
     .card.deepar    .try-btn { background: linear-gradient(135deg, #f87171, #fb923c); color: #1a0a0a; }
     .card.faceapi   .try-btn { background: linear-gradient(135deg, #818cf8, #e879f9); color: #0a0a1a; }
+    .card.snap      .try-btn { background: linear-gradient(135deg, #FFFC00, #f5c400); color: #1a1800; }
 
     /* ── NOTE ── */
     .note {
@@ -168,6 +170,27 @@
         <div class="spec-row"><span class="spec-key">โหลดเร็วกว่า</span><span class="spec-val"><div class="dot green"></div>Model เล็กกว่า MediaPipe</span></div>
       </div>
       <a class="try-btn" href="faceapi/">▶ ทดลอง face-api.js</a>
+    </div>
+
+    <!-- Snap Camera Kit -->
+    <div class="card snap">
+      <div>
+        <div class="card-top">
+          <div class="card-icon">👻</div>
+          <span class="badge freemium">ต้องสมัคร</span>
+        </div>
+        <div class="card-name">Snap Camera Kit</div>
+        <div class="card-desc" style="margin-top:8px">Lens Engine ของ Snapchat — คุณภาพเดียวกับฟิลเตอร์ Snap/TikTok จริงๆ รองรับ AR ความงาม, props 3D, และ Lens Studio</div>
+      </div>
+      <div class="specs">
+        <div class="spec-row"><span class="spec-key">คุณภาพ filter</span><span class="spec-val"><div class="dot green"></div>สูงมาก (ระดับ Snapchat)</span></div>
+        <div class="spec-row"><span class="spec-key">Filter พร้อมใช้</span><span class="spec-val"><div class="dot green"></div>เยอะมาก (Lens Studio)</span></div>
+        <div class="spec-row"><span class="spec-key">Watermark</span><span class="spec-val"><div class="dot green"></div>ไม่มี</span></div>
+        <div class="spec-row"><span class="spec-key">จำนวนผู้ใช้</span><span class="spec-val"><div class="dot green"></div>ไม่จำกัด</span></div>
+        <div class="spec-row"><span class="spec-key">ค่าใช้จ่าย</span><span class="spec-val"><div class="dot yellow"></div>ฟรี (ต้องสมัคร partner)</span></div>
+        <div class="spec-row"><span class="spec-key">เริ่มต้น</span><span class="spec-val"><div class="dot yellow"></div>ต้องได้ API Token ก่อน</span></div>
+      </div>
+      <a class="try-btn" href="snap/">▶ ทดลอง Snap Camera Kit</a>
     </div>
 
   </div>
