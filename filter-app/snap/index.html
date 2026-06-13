@@ -167,18 +167,7 @@
     const HARDCODED_TOKEN    = '';   // optional: paste API token here
     const HARDCODED_GROUP_ID = '';   // optional: paste Lens Group ID here
 
-    // ── LENSES ─────────────────────────────────────────────────────────────────
-    // Add your Lens IDs here after creating a Lens Group in the developer portal.
-    // Each lens needs: { id: 'LENS_ID', name: 'Display Name', emoji: '...' }
-    // You can find lens IDs in Snap Lens Studio or the Camera Kit portal.
-    const LENSES = [
-      { id: 'none', name: 'ปกติ', emoji: '✨' },
-      // ตัวอย่าง — แทนที่ด้วย Lens ID จริงจาก portal:
-      // { id: 'YOUR_LENS_ID_1', name: 'Beauty', emoji: '💄' },
-      // { id: 'YOUR_LENS_ID_2', name: 'Dog', emoji: '🐶' },
-      // { id: 'YOUR_LENS_ID_3', name: 'Crown', emoji: '👑' },
-      // { id: 'YOUR_LENS_ID_4', name: 'Background', emoji: '🌸' },
-    ];
+    // Lenses are loaded dynamically from the group — no hardcoding needed
 
     // ── STATE ───────────────────────────────────────────────────────────────────
     const loadScr    = document.getElementById('loadingScreen');
@@ -251,8 +240,11 @@
 
         await session.play();
 
-        // Build filter strip
-        buildStrip(groupId);
+        // Load all lenses from the group dynamically
+        progFill.style.width = '88%';
+        loadSt.textContent = 'โหลด Lens รายการ...';
+        const [lensGroup] = await cameraKit.lensRepository.loadLensGroups([groupId]);
+        buildStrip(lensGroup ? lensGroup.lenses : []);
 
         progFill.style.width = '100%';
         loadSt.textContent = 'พร้อมแล้ว!';
@@ -261,9 +253,6 @@
           snapBtn.disabled = false;
         }, 400);
 
-        // Store groupId for applyLens
-        cameraKit._groupId = groupId;
-
       } catch(e) {
         loadSt.textContent = 'Error: ' + (e.message || String(e));
         progFill.style.background = '#f87171';
@@ -271,31 +260,46 @@
       }
     }
 
-    function buildStrip(groupId) {
-      LENSES.forEach(f => {
+    function buildStrip(lenses) {
+      // "none" chip
+      const noneChip = document.createElement('div');
+      noneChip.className = 'f-chip active';
+      noneChip.dataset.id = 'none';
+      noneChip.innerHTML = `<div class="f-circle" style="background:#1a1a1a"><span>✨</span></div><span class="f-label">ปกติ</span>`;
+      noneChip.addEventListener('click', async () => {
+        setActive('none'); nameEl.textContent = '✨ ปกติ';
+        await session.clearLens();
+      });
+      stripEl.appendChild(noneChip);
+
+      // Lens chips — thumbnail from Snap + real lens name
+      lenses.forEach(lens => {
         const chip = document.createElement('div');
-        chip.className = 'f-chip' + (f.id === 'none' ? ' active' : '');
-        chip.dataset.id = f.id;
-        chip.innerHTML = `<div class="f-circle" style="background:${f.id==='none'?'#1a1a1a':'rgba(255,252,0,0.12)'}"><span>${f.emoji}</span></div><span class="f-label">${f.name}</span>`;
+        chip.className = 'f-chip';
+        chip.dataset.id = lens.id;
+        const iconSrc = lens.iconUrl || '';
+        const iconHtml = iconSrc
+          ? `<img src="${iconSrc}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;" onerror="this.outerHTML='👻'">`
+          : '👻';
+        chip.innerHTML = `<div class="f-circle" style="background:rgba(255,252,0,0.1)">${iconHtml}</div><span class="f-label">${lens.name || 'Lens'}</span>`;
         chip.addEventListener('click', async () => {
-          if (activeId === f.id) return;
-          activeId = f.id;
-          stripEl.querySelectorAll('.f-chip').forEach(c => c.classList.toggle('active', c.dataset.id === f.id));
-          nameEl.textContent = f.emoji + ' ' + f.name;
-          if (f.id === 'none') {
-            await session.clearLens();
-          } else {
-            try {
-              const lens = await cameraKit.lensRepository.loadLens(f.id, groupId);
-              await session.applyLens(lens);
-            } catch(e) {
-              console.error('Failed to load lens:', e);
-              nameEl.textContent = '❌ โหลด Lens ไม่ได้ — ตรวจ Lens ID';
-            }
-          }
+          if (activeId === lens.id) return;
+          setActive(lens.id);
+          nameEl.textContent = lens.name || 'Lens';
+          try { await session.applyLens(lens); }
+          catch(e) { console.error('applyLens error:', e); nameEl.textContent = '❌ โหลดไม่ได้'; }
         });
         stripEl.appendChild(chip);
       });
+
+      if (lenses.length === 0) {
+        nameEl.textContent = '⚠️ ไม่พบ Lens ใน Group นี้';
+      }
+    }
+
+    function setActive(id) {
+      activeId = id;
+      stripEl.querySelectorAll('.f-chip').forEach(c => c.classList.toggle('active', c.dataset.id === id));
     }
 
     // ── SNAP / CAPTURE ───────────────────────────────────────────────────────────
